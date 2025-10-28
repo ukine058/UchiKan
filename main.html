@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>うちかん - 一次創作考察補助</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Mequrio, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #e3f2fd 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #9575cd;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7e57c2;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .timer-info {
+            background: linear-gradient(135deg, #b39ddb 0%, #90caf9 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+
+        .timer-info strong {
+            font-size: 1.2em;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #ce93d8 0%, #90caf9 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #ab47bc 0%, #5c6bc0 100%);
+            font-size: 1.2em;
+            padding: 18px 30px;
+        }
+
+        .edit-section {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .edit-section h3 {
+            color: #7e57c2;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid #ce93d8;
+            border-radius: 8px;
+            font-size: 0.95em;
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: #7e57c2;
+            margin-top: 5px;
+        }
+
+        .location-group {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1f5fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ab47bc;
+        }
+
+        .location-title {
+            color: #7e57c2;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .character-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .character-name {
+            font-weight: bold;
+            color: #5e35b1;
+            min-width: 120px;
+        }
+
+        .icon-bubble {
+            background: linear-gradient(135deg, #f8bbd0 0%, #bbdefb 100%);
+            color: #4a148c;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
+        .special-icon {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffecb3 100%);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .special-icon:hover {
+            transform: scale(1.05);
+        }
+
+        .like-button {
+            margin-left: auto;
+            padding: 8px 20px;
+            font-size: 0.9em;
+            background: linear-gradient(135deg, #f48fb1 0%, #81d4fa 100%);
+        }
+
+        .like-button:disabled {
+            background: #e0e0e0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body onload="closeEditor()">
+    <div class="container">
+        <h1>🌸 うちかん 🌸</h1>
+        <p class="subtitle">一次創作考察補助</p>
+
+        <div id="startScreen">
+            <div class="timer-info">
+                <div>抽選権利: <strong id="creditsStart">2</strong> / 2</div>
+                <div id="nextCreditStart"></div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="openEditor('locations')">📍 ロケーション編集</button>
+                <button onclick="openEditor('characters')">👤 うちのこ編集</button>
+                <button onclick="openEditor('icons')">✨ アイコン編集</button>
+                <button onclick="openEditor('reserveIcons')">💫 予備アイコン編集</button>
+            </div>
+
+            <button class="primary" id="startButton" onclick="startDrawing()">開始</button>
+        </div>
+
+        <div id="mainScreen" class="hidden">
+            <div class="timer-info">
+                <div>抽選権利: <strong id="creditsMain">2</strong> / 2</div>
+                <div id="nextCreditMain"></div>
+            </div>
+
+            <div id="resultsContainer"></div>
+
+            <button class="primary" id="redrawButton" onclick="startDrawing()" style="margin-top: 20px;">再抽選</button>
+            <button onclick="backToStart()" style="margin-top: 10px;">スタート画面に戻る</button>
+        </div>
+    </div>
+
+    <div id="editorModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="editorTitle"></h3>
+            <p class="help-text">1行に1項目を入力してください</p>
+            <textarea id="editorTextarea"></textarea>
+            <div class="modal-buttons">
+                <button onclick="saveEditor()">保存</button>
+                <button onclick="closeEditor()">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const RESERVE_ICON_RATE = 0.03;
+        const WEIGHT_INCREMENT = 0.15;
+        const MAX_CREDITS = 2;
+
+        let currentEditor = '';
+        let data = {
+            locations: ['ロケーション1', 'ロケーション2', 'ロケーション3'],
+            characters: ['うちのこA', 'うちのこB', 'うちのこC'],
+            icons: ['アイコン1', 'アイコン2', 'アイコン3'],
+            reserveIcons: ['予備アイコン1', '予備アイコン2'],
+            weights: {}
+        };
+
+        let currentResults = [];
+
+        function loadData() {
+            const saved = localStorage.getItem('uchiканData');
+            if (saved) {
+                data = JSON.parse(saved);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('uchiканData', JSON.stringify(data));
+        }
+
+        function getWeight(character, type, item) {
+            if (!data.weights[character]) return 1.0;
+            if (!data.weights[character][type]) return 1.0;
+            const delta = data.weights[character][type][item];
+            return delta !== undefined ? 1.0 + delta : 1.0;
+        }
+
+        function incrementWeight(character, type, item) {
+            if (!data.weights[character]) data.weights[character] = {};
+            if (!data.weights[character][type]) data.weights[character][type] = {};
+            const current = data.weights[character][type][item] || 0;
+            data.weights[character][type][item] = current + WEIGHT_INCREMENT;
+            saveData();
+        }
+
+        function weightedRandom(items, character, type) {
+            const weights = items.map(item => getWeight(character, type, item));
+            const total = weights.reduce((a, b) => a + b, 0);
+            let random = Math.random() * total;
+            
+            for (let i = 0; i < items.length; i++) {
+                random -= weights[i];
+                if (random <= 0) return items[i];
+            }
+            return items[items.length - 1];
+        }
+
+        function getCredits() {
+            const saved = localStorage.getItem('uchikanCredits');
+            if (!saved) return MAX_CREDITS;
+            const creditData = JSON.parse(saved);
+            const now = new Date();
+            const currentPeriod = getCurrentPeriod(now);
+            
+            if (creditData.lastPeriod !== currentPeriod) {
+                const periodsElapsed = Math.min(
+                    Math.floor((Date.parse(currentPeriod) - Date.parse(creditData.lastPeriod)) / (30 * 60 * 1000)),
+                    MAX_CREDITS - creditData.credits
+                );
+                creditData.credits = Math.min(creditData.credits + periodsElapsed, MAX_CREDITS);
+                creditData.lastPeriod = currentPeriod;
+                localStorage.setItem('uchikanCredits', JSON.stringify(creditData));
+            }
+            
+            return creditData.credits;
+        }
+
+        function getCurrentPeriod(date) {
+            const d = new Date(date);
+            d.setMinutes(d.getMinutes() < 30 ? 0 : 30);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+            return d.toISOString();
+        }
+
+        function useCredit() {
+            const creditData = JSON.parse(localStorage.getItem('uchikanCredits') || `{"credits": ${MAX_CREDITS}, "lastPeriod": "${getCurrentPeriod(new Date())}"}`);
+            creditData.credits = Math.max(0, creditData.credits - 1);
+            localStorage.setItem('uchikanCredits', JSON.stringify(creditData));
+            updateCreditsDisplay();
+        }
+
+        function getNextCreditTime() {
+            const now = new Date();
+            const next = new Date(now);
+            if (now.getMinutes() < 30) {
+                next.setMinutes(30, 0, 0);
+            } else {
+                next.setHours(next.getHours() + 1, 0, 0, 0);
+            }
+            const diff = next - now;
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            return `次の権利獲得まで: ${minutes}分${seconds}秒`;
+        }
+
+        function updateCreditsDisplay() {
+            const credits = getCredits();
+            document.getElementById('creditsStart').textContent = credits;
+            document.getElementById('creditsMain').textContent = credits;
+            document.getElementById('startButton').disabled = credits === 0;
+            document.getElementById('redrawButton').disabled = credits === 0;
+            
+            const nextTime = getNextCreditTime();
+            document.getElementById('nextCreditStart').textContent = nextTime;
+            document.getElementById('nextCreditMain').textContent = nextTime;
+        }
+
+        function openEditor(type) {
+            currentEditor = type;
+            const titles = {
+                locations: '📍 ロケーション編集',
+                characters: '👤 うちのこ編集',
+                icons: '✨ アイコン編集',
+                reserveIcons: '💫 予備アイコン編集'
+            };
+            document.getElementById('editorTitle').textContent = titles[type];
+            document.getElementById('editorTextarea').value = data[type].join('\n');
+            document.getElementById('editorModal').classList.remove('hidden');
+        }
+
+        function closeEditor() {
+            document.getElementById('editorModal').classList.add('hidden');
+        }
+
+        function saveEditor() {
+            const text = document.getElementById('editorTextarea').value;
+            const items = text.split('\n').map(s => s.trim()).filter(s => s);
+            data[currentEditor] = items;
+            saveData();
+            closeEditor();
+        }
+
+        function startDrawing() {
+            const credits = getCredits();
+            if (credits === 0) return;
+            
+            if (data.characters.length === 0 || data.locations.length === 0 || data.icons.length === 0) {
+                alert('データが不足しています。編集してください。');
+                return;
+            }
+            
+            useCredit();
+            currentResults = [];
+
+            for (const character of data.characters) {
+                const location = weightedRandom(data.locations, character, 'locations');
+                const useReserve = Math.random() < RESERVE_ICON_RATE && data.reserveIcons.length > 0;
+                const icon = useReserve 
+                    ? weightedRandom(data.reserveIcons, character, 'reserveIcons')
+                    : weightedRandom(data.icons, character, 'icons');
+                
+                currentResults.push({
+                    character,
+                    location,
+                    icon,
+                    isReserve: useReserve,
+                    revealed: false
+                });
+            }
+
+            renderResults();
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('mainScreen').classList.remove('hidden');
+        }
+
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            const byLocation = {};
+            for (const result of currentResults) {
+                if (!byLocation[result.location]) byLocation[result.location] = [];
+                byLocation[result.location].push(result);
+            }
+
+            for (const location of data.locations) {
+                if (!byLocation[location]) continue;
+
+                const group = document.createElement('div');
+                group.className = 'location-group';
+
+                const title = document.createElement('div');
+                title.className = 'location-title';
+                title.textContent = `【${location}】`;
+                group.appendChild(title);
+
+                for (const result of byLocation[location]) {
+                    const item = document.createElement('div');
+                    item.className = 'character-item';
+
+                    const name = document.createElement('div');
+                    name.className = 'character-name';
+                    name.textContent = result.character;
+                    item.appendChild(name);
+
+                    const bubble = document.createElement('div');
+                    bubble.className = 'icon-bubble';
+                    if (result.isReserve && !result.revealed) {
+                        bubble.className += ' special-icon';
+                        bubble.textContent = '【！】';
+                        bubble.onclick = () => revealReserve(result);
+                    } else {
+                        bubble.textContent = result.icon;
+                    }
+                    item.appendChild(bubble);
+
+                    const btn = document.createElement('button');
+                    btn.className = 'like-button';
+                    btn.textContent = result.isReserve && !result.revealed ? '---' : 'いいね';
+                    btn.disabled = result.isReserve && !result.revealed;
+                    btn.onclick = () => likeResult(result, btn);
+                    item.appendChild(btn);
+
+                    group.appendChild(item);
+                }
+
+                container.appendChild(group);
+            }
+        }
+
+        function revealReserve(result) {
+            result.revealed = true;
+            renderResults();
+        }
+
+        function likeResult(result, button) {
+            incrementWeight(result.character, 'locations', result.location);
+            
+            if (result.isReserve) {
+                const index = data.reserveIcons.indexOf(result.icon);
+                if (index > -1) {
+                    data.reserveIcons.splice(index, 1);
+                    data.icons.push(result.icon);
+                    // 重み引き継ぎ
+                    if (data.weights[result.character] && data.weights[result.character]['reserveIcons'] && data.weights[result.character]['reserveIcons'][result.icon]) {
+                        if (!data.weights[result.character]['icons']) data.weights[result.character]['icons'] = {};
+                        data.weights[result.character]['icons'][result.icon] = data.weights[result.character]['reserveIcons'][result.icon];
+                        delete data.weights[result.character]['reserveIcons'][result.icon];
+                    }
+                    saveData();
+                }
+            }
+            
+            const iconType = result.isReserve ? 'reserveIcons' : 'icons';
+            incrementWeight(result.character, iconType, result.icon);
+            
+            button.disabled = true;
+            button.textContent = '💖';
+        }
+
+        function backToStart() {
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        loadData();
+        updateCreditsDisplay();
+        setInterval(updateCreditsDisplay, 1000);
+        closeEditor();  // ロード時に強制close
+    </script>
+</body>
+</html>
